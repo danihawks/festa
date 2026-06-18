@@ -174,6 +174,25 @@
       opacity: 0.75;
       border-radius: 2px 2px 0 0;
     }
+
+    /* ── Mobile Performance Optimizations ── */
+    @media (max-width: 430px) {
+      .liquid-glass {
+        backdrop-filter: blur(8px);
+        -webkit-backdrop-filter: blur(8px);
+        box-shadow: 0 4px 20px -5px rgba(0, 0, 0, 0.05),
+                    inset 0 1px 0 0 rgba(255, 255, 255, 0.7);
+      }
+
+      .section {
+        content-visibility: auto;
+        contain-intrinsic-size: 0 100vh;
+      }
+
+      .blueprint-grid {
+        will-change: transform;
+      }
+    }
   </style>
 </head>
 
@@ -192,16 +211,18 @@
 
   <!-- ═══════════════════════════════════════════════════════════
        MAIN PHONE CONTAINER
+       On mobile: full-width, no height constraint, body scrolls natively
+       On desktop: phone frame with nested scroller
        ═══════════════════════════════════════════════════════════ -->
-  <div class="w-full max-w-[430px] h-screen md:h-[840px] bg-[#f5f6f8] relative md:rounded-[44px] md:border-[12px] md:border-[#1e2022] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] flex flex-col overflow-hidden">
+  <div id="phone-wrapper" class="w-full md:max-w-[430px] md:h-[840px] bg-[#f5f6f8] relative md:rounded-[44px] md:border-[12px] md:border-[#1e2022] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] flex flex-col md:overflow-hidden">
 
     <!-- iPhone Notch (desktop only) -->
     <div class="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-36 h-7 bg-[#1e2022] rounded-b-2xl z-50 pointer-events-none">
       <div class="w-12 h-1 bg-white/10 rounded-full mx-auto mt-2"></div>
     </div>
 
-    <!-- SCROLL CONTAINER -->
-    <div id="phone-container" class="flex-1 w-full overflow-y-auto overflow-x-hidden scrollbar-hide relative pt-0 md:pt-8">
+    <!-- SCROLL CONTAINER: on desktop = nested scroller, on mobile = just a wrapper (body scrolls) -->
+    <div id="phone-container" class="flex-1 w-full md:overflow-y-auto md:overflow-x-hidden scrollbar-hide relative pt-0 md:pt-8">
       <div class="blueprint-grid min-h-full w-full relative">
 
 
@@ -571,12 +592,24 @@
 
   <!-- ═══════════════════════════════════════════════════════════
        GSAP SCROLLYTELLING ANIMATIONS
+       Conditional: mobile uses window scroll (no pin), desktop uses nested scroller (with pin)
        ═══════════════════════════════════════════════════════════ -->
   <script>
     document.addEventListener("DOMContentLoaded", () => {
-      const scroller = "#phone-container";
-
       gsap.registerPlugin(ScrollTrigger);
+
+      const isMobile = window.innerWidth <= 430;
+      const scrubVal = isMobile ? 0.3 : 1;
+
+      // On mobile: scroll on window (native, compositor-thread)
+      // On desktop: scroll on nested div (phone frame)
+      const scrollerOpt = isMobile ? {} : { scroller: "#phone-container" };
+
+      // Normalize scroll on mobile for better touch handling
+      if (isMobile) {
+        ScrollTrigger.normalizeScroll(true);
+      }
+
 
       // ────────────────────────────────────────
       // SECTION 1: HERO — Parallax Fade Out
@@ -586,8 +619,8 @@
           trigger: "#hero",
           start: "top top",
           end: "bottom top",
-          scrub: 1,
-          scroller: scroller
+          scrub: scrubVal,
+          ...scrollerOpt
         }
       });
       tlHero.to("#hero-content", { y: -80, opacity: 0 }, 0);
@@ -597,173 +630,236 @@
 
 
       // ────────────────────────────────────────
-      // SECTION 2: CRONOPROGRAMMA — Pinned Timeline
+      // SECTION 2: CRONOPROGRAMMA
+      // Mobile: simple reveal on scroll (no pin)
+      // Desktop: pinned timeline
       // ────────────────────────────────────────
-      const tlCrono = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#cronoprogramma",
-          start: "top top",
-          end: "+=160%",
-          pin: true,
-          pinSpacing: true,
-          scrub: 1,
-          scroller: scroller
-        }
-      });
+      if (isMobile) {
+        // Timeline line grows as section scrolls through
+        gsap.fromTo("#timeline-progress-line", { height: "0%" }, {
+          height: "100%",
+          ease: "none",
+          scrollTrigger: {
+            trigger: "#cronoprogramma",
+            start: "top 60%",
+            end: "bottom 20%",
+            scrub: scrubVal
+          }
+        });
 
-      // Timeline line grows
-      tlCrono.to("#timeline-progress-line", { height: "100%", ease: "none" }, 0);
-
-      // Staggered card reveals
-      tlCrono.fromTo("#cronocard-1",
-        { opacity: 0, x: 40, scale: 0.96 },
-        { opacity: 1, x: 0, scale: 1, duration: 0.3 },
-        0.05
-      );
-      tlCrono.fromTo("#cronocard-2",
-        { opacity: 0, x: 40, scale: 0.96 },
-        { opacity: 1, x: 0, scale: 1, duration: 0.3 },
-        0.4
-      );
-      tlCrono.fromTo("#cronocard-3",
-        { opacity: 0, x: 40, scale: 0.96 },
-        { opacity: 1, x: 0, scale: 1, duration: 0.3 },
-        0.75
-      );
+        // Staggered card reveals
+        gsap.fromTo("#cronocard-1",
+          { opacity: 0, x: 40, scale: 0.96 },
+          { opacity: 1, x: 0, scale: 1, scrollTrigger: { trigger: "#cronocard-1", start: "top 85%", end: "top 55%", scrub: scrubVal } }
+        );
+        gsap.fromTo("#cronocard-2",
+          { opacity: 0, x: 40, scale: 0.96 },
+          { opacity: 1, x: 0, scale: 1, scrollTrigger: { trigger: "#cronocard-2", start: "top 85%", end: "top 55%", scrub: scrubVal } }
+        );
+        gsap.fromTo("#cronocard-3",
+          { opacity: 0, x: 40, scale: 0.96 },
+          { opacity: 1, x: 0, scale: 1, scrollTrigger: { trigger: "#cronocard-3", start: "top 85%", end: "top 55%", scrub: scrubVal } }
+        );
+      } else {
+        const tlCrono = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#cronoprogramma",
+            start: "top top",
+            end: "+=160%",
+            pin: true,
+            pinSpacing: true,
+            scrub: scrubVal,
+            ...scrollerOpt
+          }
+        });
+        tlCrono.to("#timeline-progress-line", { height: "100%", ease: "none" }, 0);
+        tlCrono.fromTo("#cronocard-1", { opacity: 0, x: 40, scale: 0.96 }, { opacity: 1, x: 0, scale: 1, duration: 0.3 }, 0.05);
+        tlCrono.fromTo("#cronocard-2", { opacity: 0, x: 40, scale: 0.96 }, { opacity: 1, x: 0, scale: 1, duration: 0.3 }, 0.4);
+        tlCrono.fromTo("#cronocard-3", { opacity: 0, x: 40, scale: 0.96 }, { opacity: 1, x: 0, scale: 1, duration: 0.3 }, 0.75);
+      }
 
 
       // ────────────────────────────────────────
       // SECTION 3: PLANIMETRIA — SVG Line Drawing + Pin Drop
       // ────────────────────────────────────────
-      const tlPlani = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#planimetria",
-          start: "top top",
-          end: "+=150%",
-          pin: true,
-          pinSpacing: true,
-          scrub: 1,
-          scroller: scroller
-        }
-      });
 
-      // Draw map paths
+      // Setup SVG path drawing (shared)
       const mapPaths = document.querySelectorAll("#planimetria-svg .map-path");
-      mapPaths.forEach(path => {
-        const length = path.getTotalLength();
-        gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
-        tlPlani.to(path, { strokeDashoffset: 0, duration: 0.4 }, 0.05);
-      });
-
-      // Draw River Po
       const riverPo = document.querySelector(".map-river");
       const riverPoLine = document.querySelector(".map-river-line");
-      if (riverPo && riverPoLine) {
-        const len1 = riverPo.getTotalLength();
-        const len2 = riverPoLine.getTotalLength();
-        gsap.set(riverPo, { strokeDasharray: len1, strokeDashoffset: len1 });
-        gsap.set(riverPoLine, { strokeDasharray: len2, strokeDashoffset: len2 });
-        tlPlani.to(riverPo, { strokeDashoffset: 0, duration: 0.5 }, 0.1);
-        tlPlani.to(riverPoLine, { strokeDashoffset: 0, duration: 0.5 }, 0.1);
-      }
-
-      // Draw boundary
       const mapBoundary = document.querySelector(".map-boundary");
-      if (mapBoundary) {
-        const lenB = mapBoundary.getTotalLength();
-        gsap.set(mapBoundary, { strokeDasharray: lenB, strokeDashoffset: lenB });
-        tlPlani.to(mapBoundary, { strokeDashoffset: 0, duration: 0.4 }, 0.2);
+
+      if (isMobile) {
+        // Draw paths as section enters
+        mapPaths.forEach(path => {
+          const length = path.getTotalLength();
+          gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+          gsap.to(path, { strokeDashoffset: 0, scrollTrigger: { trigger: "#planimetria", start: "top 80%", end: "top 30%", scrub: scrubVal } });
+        });
+
+        if (riverPo && riverPoLine) {
+          const len1 = riverPo.getTotalLength();
+          const len2 = riverPoLine.getTotalLength();
+          gsap.set(riverPo, { strokeDasharray: len1, strokeDashoffset: len1 });
+          gsap.set(riverPoLine, { strokeDasharray: len2, strokeDashoffset: len2 });
+          gsap.to(riverPo, { strokeDashoffset: 0, scrollTrigger: { trigger: "#planimetria", start: "top 75%", end: "top 25%", scrub: scrubVal } });
+          gsap.to(riverPoLine, { strokeDashoffset: 0, scrollTrigger: { trigger: "#planimetria", start: "top 75%", end: "top 25%", scrub: scrubVal } });
+        }
+
+        if (mapBoundary) {
+          const lenB = mapBoundary.getTotalLength();
+          gsap.set(mapBoundary, { strokeDasharray: lenB, strokeDashoffset: lenB });
+          gsap.to(mapBoundary, { strokeDashoffset: 0, scrollTrigger: { trigger: "#planimetria", start: "top 70%", end: "top 20%", scrub: scrubVal } });
+        }
+
+        gsap.fromTo("#location-pin",
+          { opacity: 0, scale: 0.1, y: -40, transformOrigin: "125px 100px" },
+          { opacity: 1, scale: 1, y: 0, ease: "bounce.out", scrollTrigger: { trigger: "#planimetria-map-wrapper", start: "top 60%", end: "top 30%", scrub: scrubVal } }
+        );
+
+        gsap.fromTo("#planimetria-content",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, scrollTrigger: { trigger: "#planimetria-content", start: "top 90%", end: "top 70%", scrub: scrubVal } }
+        );
+      } else {
+        const tlPlani = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#planimetria",
+            start: "top top",
+            end: "+=150%",
+            pin: true,
+            pinSpacing: true,
+            scrub: scrubVal,
+            ...scrollerOpt
+          }
+        });
+
+        mapPaths.forEach(path => {
+          const length = path.getTotalLength();
+          gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+          tlPlani.to(path, { strokeDashoffset: 0, duration: 0.4 }, 0.05);
+        });
+
+        if (riverPo && riverPoLine) {
+          const len1 = riverPo.getTotalLength();
+          const len2 = riverPoLine.getTotalLength();
+          gsap.set(riverPo, { strokeDasharray: len1, strokeDashoffset: len1 });
+          gsap.set(riverPoLine, { strokeDasharray: len2, strokeDashoffset: len2 });
+          tlPlani.to(riverPo, { strokeDashoffset: 0, duration: 0.5 }, 0.1);
+          tlPlani.to(riverPoLine, { strokeDashoffset: 0, duration: 0.5 }, 0.1);
+        }
+
+        if (mapBoundary) {
+          const lenB = mapBoundary.getTotalLength();
+          gsap.set(mapBoundary, { strokeDasharray: lenB, strokeDashoffset: lenB });
+          tlPlani.to(mapBoundary, { strokeDashoffset: 0, duration: 0.4 }, 0.2);
+        }
+
+        tlPlani.fromTo("#location-pin",
+          { opacity: 0, scale: 0.1, y: -80, transformOrigin: "125px 100px" },
+          { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "bounce.out" },
+          0.55
+        );
+
+        tlPlani.fromTo("#planimetria-content",
+          { opacity: 0, y: 20 },
+          { opacity: 1, y: 0, duration: 0.3 },
+          0.75
+        );
       }
-
-      // Pin drop with bounce
-      tlPlani.fromTo("#location-pin",
-        { opacity: 0, scale: 0.1, y: -80, transformOrigin: "125px 100px" },
-        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "bounce.out" },
-        0.55
-      );
-
-      // Maps button fade in
-      tlPlani.fromTo("#planimetria-content",
-        { opacity: 0, y: 20 },
-        { opacity: 1, y: 0, duration: 0.3 },
-        0.75
-      );
 
 
       // ────────────────────────────────────────
       // SECTION 4: MATERIALI — Staggered Card Flip
       // ────────────────────────────────────────
-      const tlMat = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#materiali",
-          start: "top top",
-          end: "+=160%",
-          pin: true,
-          pinSpacing: true,
-          scrub: 1,
-          scroller: scroller
-        }
-      });
-
-      tlMat.fromTo("#mat-card-1",
-        { opacity: 0, y: 60, rotationX: 15, transformOrigin: "bottom center" },
-        { opacity: 1, y: 0, rotationX: 0, duration: 0.3 },
-        0.1
-      );
-      tlMat.fromTo("#mat-card-2",
-        { opacity: 0, y: 60, rotationX: 15, transformOrigin: "bottom center" },
-        { opacity: 1, y: 0, rotationX: 0, duration: 0.3 },
-        0.4
-      );
-      tlMat.fromTo("#mat-card-3",
-        { opacity: 0, y: 60, rotationX: 15, transformOrigin: "bottom center" },
-        { opacity: 1, y: 0, rotationX: 0, duration: 0.3 },
-        0.7
-      );
+      if (isMobile) {
+        ["#mat-card-1", "#mat-card-2", "#mat-card-3"].forEach((sel) => {
+          gsap.fromTo(sel,
+            { opacity: 0, y: 50 },
+            { opacity: 1, y: 0, scrollTrigger: { trigger: sel, start: "top 88%", end: "top 58%", scrub: scrubVal } }
+          );
+        });
+      } else {
+        const tlMat = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#materiali",
+            start: "top top",
+            end: "+=160%",
+            pin: true,
+            pinSpacing: true,
+            scrub: scrubVal,
+            ...scrollerOpt
+          }
+        });
+        tlMat.fromTo("#mat-card-1", { opacity: 0, y: 60, rotationX: 15, transformOrigin: "bottom center" }, { opacity: 1, y: 0, rotationX: 0, duration: 0.3 }, 0.1);
+        tlMat.fromTo("#mat-card-2", { opacity: 0, y: 60, rotationX: 15, transformOrigin: "bottom center" }, { opacity: 1, y: 0, rotationX: 0, duration: 0.3 }, 0.4);
+        tlMat.fromTo("#mat-card-3", { opacity: 0, y: 60, rotationX: 15, transformOrigin: "bottom center" }, { opacity: 1, y: 0, rotationX: 0, duration: 0.3 }, 0.7);
+      }
 
 
       // ────────────────────────────────────────
       // SECTION 5: RSVP — Stamp Slam + Confetti
       // ────────────────────────────────────────
-      const tlRSVP = gsap.timeline({
-        scrollTrigger: {
-          trigger: "#rsvp",
-          start: "top top",
-          end: "+=130%",
-          pin: true,
-          pinSpacing: true,
-          scrub: 1,
-          scroller: scroller
-        }
-      });
+      if (isMobile) {
+        gsap.fromTo("#rsvp-card",
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, scrollTrigger: { trigger: "#rsvp-card", start: "top 88%", end: "top 55%", scrub: scrubVal } }
+        );
 
-      tlRSVP.fromTo("#rsvp-card",
-        { opacity: 0, y: 40 },
-        { opacity: 1, y: 0, duration: 0.4 },
-        0.1
-      );
-
-      // Stamp slam
-      tlRSVP.fromTo("#rsvp-stamp",
-        { opacity: 0, scale: 3.5, rotation: -50, transformOrigin: "center center" },
-        {
-          opacity: 0.9,
-          scale: 1,
-          rotation: -12,
-          duration: 0.35,
-          ease: "power2.in",
-          onComplete: () => {
-            triggerStampParticles();
-            gsap.fromTo("#rsvp-card",
-              { x: -5, y: 3 },
-              { x: 0, y: 0, duration: 0.15, ease: "rough", clearProps: "x,y" }
-            );
+        gsap.fromTo("#rsvp-stamp",
+          { opacity: 0, scale: 3.5, rotation: -50, transformOrigin: "center center" },
+          {
+            opacity: 0.9,
+            scale: 1,
+            rotation: -12,
+            ease: "power2.in",
+            scrollTrigger: {
+              trigger: "#rsvp-card",
+              start: "top 50%",
+              end: "top 25%",
+              scrub: scrubVal,
+              onEnter: () => triggerStampParticles()
+            }
           }
-        },
-        0.55
-      );
+        );
+      } else {
+        const tlRSVP = gsap.timeline({
+          scrollTrigger: {
+            trigger: "#rsvp",
+            start: "top top",
+            end: "+=130%",
+            pin: true,
+            pinSpacing: true,
+            scrub: scrubVal,
+            ...scrollerOpt
+          }
+        });
 
+        tlRSVP.fromTo("#rsvp-card",
+          { opacity: 0, y: 40 },
+          { opacity: 1, y: 0, duration: 0.4 },
+          0.1
+        );
 
+        tlRSVP.fromTo("#rsvp-stamp",
+          { opacity: 0, scale: 3.5, rotation: -50, transformOrigin: "center center" },
+          {
+            opacity: 0.9,
+            scale: 1,
+            rotation: -12,
+            duration: 0.35,
+            ease: "power2.in",
+            onComplete: () => {
+              triggerStampParticles();
+              gsap.fromTo("#rsvp-card",
+                { x: -5, y: 3 },
+                { x: 0, y: 0, duration: 0.15, ease: "rough", clearProps: "x,y" }
+              );
+            }
+          },
+          0.55
+        );
+      }
 
 
       // ────────────────────────────────────────
