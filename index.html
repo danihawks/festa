@@ -1,0 +1,818 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Daniele Falchi — Laurea in Architettura 📐</title>
+  <meta name="description" content="Festa di laurea di Daniele Falchi — Dottore in Architettura. 17 Luglio 2026, Parco del Valentino. Sei invitato all'ispezione del cantiere!">
+  <meta name="theme-color" content="#f5f6f8">
+
+  <!-- Open Graph -->
+  <meta property="og:title" content="Daniele Falchi — Laurea in Architettura">
+  <meta property="og:description" content="17 Luglio 2026 · Parco del Valentino · Sei invitato!">
+  <meta property="og:type" content="website">
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Karla:ital,wght@0,200..800;1,200..800&display=swap" rel="stylesheet">
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Karla', 'sans-serif'],
+          },
+          colors: {
+            blueprint: {
+              light: '#f5f6f8',
+              grid: 'rgba(30, 32, 34, 0.035)',
+              accent: '#f26419',
+              dark: '#1e2022'
+            }
+          }
+        }
+      }
+    }
+  </script>
+
+  <!-- GSAP & ScrollTrigger CDN -->
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+  <style>
+    /* ── RESET ── */
+    *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background-color: #0c0d0e;
+      overflow-x: hidden;
+      margin: 0;
+      padding: 0;
+      color: #1e2022;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    /* ── Desktop Blueprint Background ── */
+    .desktop-blueprint {
+      background-image:
+        linear-gradient(rgba(255, 255, 255, 0.02) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(255, 255, 255, 0.02) 1px, transparent 1px);
+      background-size: 40px 40px;
+      background-position: center center;
+    }
+
+    /* ── Inner Blueprint Grid ── */
+    .blueprint-grid {
+      background-color: #f5f6f8;
+      background-image:
+        linear-gradient(rgba(30, 32, 34, 0.035) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30, 32, 34, 0.035) 1px, transparent 1px);
+      background-size: 20px 20px;
+      background-position: center center;
+      position: relative;
+    }
+
+    /* ── Liquid Glass (Apple-style Glassmorphism) ── */
+    .liquid-glass {
+      background: rgba(255, 255, 255, 0.52);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      border: 1px solid rgba(255, 255, 255, 0.75);
+      border-radius: 28px;
+      box-shadow:
+        0 12px 40px -10px rgba(0, 0, 0, 0.03),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.8),
+        0 1px 2px 0 rgba(0, 0, 0, 0.01);
+      transition: border-color 0.3s ease, box-shadow 0.3s ease, transform 0.2s ease;
+    }
+
+    .liquid-glass:hover {
+      border-color: rgba(255, 255, 255, 0.95);
+      box-shadow:
+        0 16px 45px 0 rgba(0, 0, 0, 0.05),
+        inset 0 1px 0 0 rgba(255, 255, 255, 0.9);
+    }
+
+    /* ── Hide Scrollbar ── */
+    .scrollbar-hide::-webkit-scrollbar { display: none; }
+    .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+    /* ── CAD Labels ── */
+    .cad-label {
+      font-family: monospace;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.15em;
+      text-transform: uppercase;
+      color: rgba(30, 32, 34, 0.6);
+    }
+
+    /* ── Section Header (Cartiglio) ── */
+    .section-header {
+      width: 100%;
+      display: flex;
+      justify-content: space-between;
+      align-items: flex-start;
+      border-bottom: 1px solid rgba(30, 32, 34, 0.1);
+      padding-bottom: 16px;
+      font-family: monospace;
+      font-size: 10px;
+      color: rgba(100, 116, 139, 1);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+    }
+
+    /* ── Section Footer (Nota tecnica) ── */
+    .section-footer {
+      width: 100%;
+      text-align: center;
+      font-family: monospace;
+      font-size: 10px;
+      color: rgba(148, 163, 184, 1);
+      padding: 8px 0;
+      border-top: 1px solid rgba(30, 32, 34, 0.05);
+    }
+
+    /* ── Approved Stamp ── */
+    .approved-stamp {
+      width: 100px;
+      height: 100px;
+      aspect-ratio: 1;
+      border: 5px double #d62246;
+      color: #d62246;
+      font-weight: 900;
+      text-transform: uppercase;
+      font-family: monospace;
+      letter-spacing: 2px;
+      border-radius: 50%;
+      background-color: rgba(255, 255, 255, 0.96);
+      box-shadow: 0 6px 20px rgba(214, 34, 70, 0.2);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px;
+    }
+
+    /* ── Pulse Animations ── */
+    @keyframes pulse-light {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+    .pulse-glow { animation: pulse-light 2s infinite ease-in-out; }
+
+    /* ── Warning Stripes ── */
+    .warning-stripes {
+      width: 100%;
+      height: 6px;
+      background: linear-gradient(45deg, #f59e0b 25%, #1e293b 25%, #1e293b 50%, #f59e0b 50%, #f59e0b 75%, #1e293b 75%);
+      background-size: 12px 12px;
+      opacity: 0.75;
+      border-radius: 2px 2px 0 0;
+    }
+  </style>
+</head>
+
+<body class="desktop-blueprint flex items-center justify-center min-h-screen p-0 md:p-6 select-none overflow-hidden">
+
+  <!-- ═══ Desktop Decorative Overlay (hidden on mobile) ═══ -->
+  <div class="hidden md:flex fixed top-4 left-6 right-6 justify-between items-center text-white/35 font-mono text-[10px] pointer-events-none z-10">
+    <div>[ PROGETTO DI LAUREA: SEZ_MOBILE_APP_V2.0 ]</div>
+    <div class="animate-pulse">● CANTIERE OPERATIVO</div>
+    <div>FACOLTÀ DI ARCHITETTURA (LAUREANDO: DANIELE FALCHI)</div>
+  </div>
+
+  <div class="hidden md:block fixed left-6 top-1/2 -translate-y-1/2 text-white/20 font-mono text-[9px] pointer-events-none rotate-90 origin-left tracking-widest z-10">
+    ---------------- GRIGLIA DI RISCONTRO PLANIMETRICO ----------------
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       MAIN PHONE CONTAINER
+       ═══════════════════════════════════════════════════════════ -->
+  <div class="w-full max-w-[430px] h-screen md:h-[840px] bg-[#f5f6f8] relative md:rounded-[44px] md:border-[12px] md:border-[#1e2022] md:shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85)] flex flex-col overflow-hidden">
+
+    <!-- iPhone Notch (desktop only) -->
+    <div class="hidden md:block absolute top-0 left-1/2 -translate-x-1/2 w-36 h-7 bg-[#1e2022] rounded-b-2xl z-50 pointer-events-none">
+      <div class="w-12 h-1 bg-white/10 rounded-full mx-auto mt-2"></div>
+    </div>
+
+    <!-- SCROLL CONTAINER -->
+    <div id="phone-container" class="flex-1 w-full overflow-y-auto overflow-x-hidden scrollbar-hide relative pt-0 md:pt-8">
+      <div class="blueprint-grid min-h-full w-full relative">
+
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 1 — HERO (Apertura Cantiere)
+             ═══════════════════════════════════════════════════ -->
+        <section id="hero" class="section h-screen md:h-[800px] w-full flex flex-col justify-between p-7 relative overflow-hidden shrink-0">
+
+          <!-- Cartiglio Header -->
+          <div class="section-header">
+            <div>TAV. 01 / APERTURA CANTIERE</div>
+            <div class="text-right">17 LUGLIO 2026 · ORE 18:00</div>
+          </div>
+
+          <!-- Background Compass Rose -->
+          <div id="hero-bg-compass" class="absolute -right-16 top-1/4 w-64 h-64 rounded-full border border-slate-900/5 flex items-center justify-center pointer-events-none">
+            <div class="w-56 h-56 rounded-full border border-dashed border-slate-900/5 flex items-center justify-center">
+              <div class="w-36 h-36 rounded-full border border-slate-900/5"></div>
+            </div>
+            <div class="absolute w-[260px] h-[1px] bg-slate-900/[0.03] rotate-45"></div>
+            <div class="absolute w-[260px] h-[1px] bg-slate-900/[0.03] -rotate-45"></div>
+            <div class="absolute w-[260px] h-[1px] bg-slate-900/[0.03] rotate-90"></div>
+            <div class="absolute w-[260px] h-[1px] bg-slate-900/[0.03]"></div>
+          </div>
+
+          <!-- Main Title -->
+          <div id="hero-content" class="my-auto z-10 flex flex-col gap-3">
+            <div class="cad-label flex items-center gap-2">
+              <span class="w-2.5 h-2.5 bg-[#f26419] rounded-full animate-ping"></span>CANTIERE DI LAUREA
+            </div>
+
+            <h1 class="text-[60px] md:text-[66px] leading-[0.82] font-black tracking-tighter text-slate-950 uppercase mt-1 select-text">
+              Daniele<br><span class="text-transparent bg-clip-text bg-gradient-to-r from-slate-950 via-slate-700 to-slate-950">Falchi</span>
+            </h1>
+
+            <p class="text-2xl font-bold text-slate-800 mt-2 select-text tracking-tight">
+              Dottore in Architettura <span class="inline-block hover:scale-125 transition-transform duration-300">📐</span>
+            </p>
+          </div>
+
+          <!-- Cartiglio Tecnico (Sheet Info Block) -->
+          <div id="hero-cartiglio" class="w-full liquid-glass p-5 border border-slate-900/10 flex flex-col gap-3 relative z-10">
+            <div class="flex justify-between items-center border-b border-slate-900/5 pb-1.5 text-[9px] font-mono text-slate-400">
+              <span>SCHEDA DI COLLAUDO E VERIFICA</span>
+              <span>COD. D-F-2026</span>
+            </div>
+            <div class="grid grid-cols-2 gap-y-3 gap-x-4 text-[12px] font-mono">
+              <div>
+                <span class="text-slate-400 block text-[9px]">PROGETTISTA:</span>
+                <strong class="text-slate-900 font-extrabold">Daniele Falchi</strong>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[9px]">COLLAUDO FESTA:</span>
+                <strong class="text-slate-900 font-extrabold">17 Luglio 2026</strong>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[9px]">DESTINAZIONE D'USO:</span>
+                <strong class="text-slate-900 font-extrabold">Divertimento Totale</strong>
+              </div>
+              <div>
+                <span class="text-slate-400 block text-[9px]">DIREZIONE LAVORI:</span>
+                <strong class="text-emerald-600 font-extrabold flex items-center gap-1">
+                  APPROVATA <span class="w-2 h-2 rounded-full bg-emerald-500 animate-pulse"></span>
+                </strong>
+              </div>
+            </div>
+          </div>
+
+          <!-- Scroll Indicator -->
+          <div id="hero-scroll-indicator" class="w-full flex flex-col items-center gap-1.5 pb-2 pt-2 text-[11px] text-slate-400 font-mono tracking-wider">
+            <span>Scorri per l'ispezione del sito ⬇️</span>
+            <svg class="w-5 h-5 animate-bounce text-[#f26419]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3" />
+            </svg>
+          </div>
+        </section>
+
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 2 — IL CRONOPROGRAMMA (Data e Ora)
+             ═══════════════════════════════════════════════════ -->
+        <section id="cronoprogramma" class="section h-screen md:h-[800px] w-full flex flex-col justify-between p-7 relative overflow-hidden shrink-0">
+          <div class="section-header">
+            <div>TAV. 02 / CRONOPROGRAMMA</div>
+            <div class="text-right">17 LUGLIO 2026 · ORE 18:00</div>
+          </div>
+
+          <div class="flex-1 my-auto flex flex-col gap-6 relative py-4">
+            <h2 class="text-4xl font-extrabold text-slate-950 uppercase leading-none tracking-tight flex items-center gap-2">
+              Il Cronoprogramma <span class="text-3xl">⏱️</span>
+            </h2>
+
+            <p class="text-[16px] font-normal text-slate-700 leading-relaxed max-w-sm">
+              Fase esecutiva stabilita per <strong class="font-extrabold text-slate-900">Venerdì 17 Luglio 2026</strong>. Il cantiere segue orari rigorosamente non prorogabili.
+            </p>
+
+            <!-- Timeline -->
+            <div class="relative w-full flex flex-col gap-5 pl-8 mt-1">
+              <!-- Background line -->
+              <div class="absolute left-[10px] top-0 bottom-0 w-[3px] bg-slate-300/40"></div>
+              <!-- Animated progress line -->
+              <div id="timeline-progress-line" class="absolute left-[10px] top-0 w-[3px] bg-[#f26419] h-0"></div>
+
+              <!-- Card 1: 18:00 -->
+              <div id="cronocard-1" class="liquid-glass p-5 relative flex flex-col gap-1.5">
+                <div class="absolute -left-[27px] top-5 w-[18px] h-[18px] rounded-full border-2 border-[#f26419] bg-[#f5f6f8] flex items-center justify-center z-10">
+                  <div class="w-2.5 h-2.5 bg-[#f26419] rounded-full"></div>
+                </div>
+                <div class="flex justify-between items-center text-[11px] font-mono text-slate-500">
+                  <span class="font-bold">FASE 01 - APERTURA CANCELLI</span>
+                  <strong class="font-extrabold text-slate-900">ORE 18:00</strong>
+                </div>
+                <p class="text-[14px] font-normal text-slate-800 leading-relaxed mt-1 select-text">
+                  Inizio lavori, accreditamento maestranze e ritiro dispositivi di protezione individuale per la serata.
+                </p>
+              </div>
+
+              <!-- Card 2: WARNING -->
+              <div id="cronocard-2" class="liquid-glass p-5 relative flex flex-col gap-1.5 border-l-4 border-l-amber-500">
+                <div class="absolute -left-[27px] top-5 w-[18px] h-[18px] rounded-full border-2 border-amber-500 bg-[#f5f6f8] flex items-center justify-center z-10">
+                  <div class="w-2.5 h-2.5 bg-amber-500 rounded-full animate-ping"></div>
+                </div>
+                <div class="warning-stripes mb-1"></div>
+                <div class="flex justify-between items-center text-[11px] font-mono text-amber-600">
+                  <span class="font-extrabold">🚧 AVVISO CRITICO</span>
+                  <strong class="font-extrabold text-slate-900">ENTRO 18:30</strong>
+                </div>
+                <p class="text-[15px] font-extrabold text-slate-950 leading-relaxed mt-1 select-text">
+                  L'architettura richiede precisione. Presentarsi puntuali entro le 18:30, dopo passiamo al collaudo!
+                </p>
+              </div>
+
+              <!-- Card 3: 22:00 -->
+              <div id="cronocard-3" class="liquid-glass p-5 relative flex flex-col gap-1.5">
+                <div class="absolute -left-[27px] top-5 w-[18px] h-[18px] rounded-full border-2 border-[#f26419] bg-[#f5f6f8] flex items-center justify-center z-10">
+                  <div class="w-2.5 h-2.5 bg-[#f26419] rounded-full"></div>
+                </div>
+                <div class="flex justify-between items-center text-[11px] font-mono text-slate-500">
+                  <span class="font-bold">FASE 03 - CONCLUSIONE OPERA</span>
+                  <strong class="font-extrabold text-slate-900">ORE 22:00</strong>
+                </div>
+                <p class="text-[14px] font-normal text-slate-800 leading-relaxed mt-1 select-text">
+                  Chiusura lavori, smobilitazione cantiere e consegna delle chiavi della struttura.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-footer">SEZIONE ESECUTIVA - TAVOLA DI DETTAGLIO</div>
+        </section>
+
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 3 — LA PLANIMETRIA (Location)
+             ═══════════════════════════════════════════════════ -->
+        <section id="planimetria" class="section h-screen md:h-[800px] w-full flex flex-col justify-between p-7 relative overflow-hidden shrink-0">
+          <div class="section-header">
+            <div>TAV. 03 / PLANIMETRIA</div>
+            <div class="text-right">17 LUGLIO 2026 · ORE 18:00</div>
+          </div>
+
+          <div class="flex-1 my-auto flex flex-col gap-5 relative py-4">
+            <h2 class="text-4xl font-extrabold text-slate-950 uppercase leading-none tracking-tight">
+              La Planimetria 📍
+            </h2>
+
+            <p class="text-[16px] font-normal text-slate-700 leading-relaxed select-text">
+              Sito dell'opera identificato presso: <strong class="font-extrabold text-slate-900">Parco del Valentino (Lato Moncalieri)</strong>, Torino.
+            </p>
+
+            <!-- SVG CAD MAP -->
+            <div id="planimetria-map-wrapper" class="w-full h-60 liquid-glass p-3.5 relative overflow-hidden border border-slate-900/10 bg-white/30">
+              <!-- Compass -->
+              <div class="absolute bottom-3 left-3 w-14 h-14 rounded-full border border-slate-900/5 flex items-center justify-center pointer-events-none text-[8px] font-mono text-slate-400">
+                N
+                <div class="absolute w-[2px] h-[54px] bg-slate-900/5 -top-2"></div>
+              </div>
+
+              <!-- Blueprint Map SVG -->
+              <svg id="planimetria-svg" viewBox="0 0 320 200" class="w-full h-full text-slate-800" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Grid -->
+                <path d="M 0 30 L 320 30 M 0 60 L 320 60 M 0 90 L 320 90 M 0 120 L 320 120 M 0 150 L 320 150 M 0 180 L 320 180" stroke="rgba(30, 32, 34, 0.025)" stroke-width="0.75" />
+                <path d="M 30 0 L 30 200 M 60 0 L 60 200 M 90 0 L 90 200 M 120 0 L 120 200 M 150 0 L 150 200 M 180 0 L 180 200 M 210 0 L 210 200 M 240 0 L 240 200 M 270 0 L 270 200 M 300 0 L 300 200" stroke="rgba(30, 32, 34, 0.025)" stroke-width="0.75" />
+
+                <!-- River Po -->
+                <path class="map-river" d="M 270 -20 Q 240 70, 190 120 T 110 220" stroke="rgba(14, 165, 233, 0.2)" stroke-width="20" stroke-linecap="round" />
+                <path class="map-river-line" d="M 270 -20 Q 240 70, 190 120 T 110 220" stroke="#38bdf8" stroke-width="1.2" stroke-dasharray="3 3" />
+                <text fill="#0284c7" font-size="7" font-family="monospace" letter-spacing="2" transform="rotate(-40, 205, 120)" opacity="0.6">FIUME PO</text>
+
+                <!-- Park Boundary -->
+                <path class="map-boundary" d="M 0 0 L 240 0 Q 210 75, 170 120 T 90 200 L 0 200 Z" fill="rgba(34, 197, 94, 0.02)" stroke="rgba(34, 197, 94, 0.15)" stroke-width="1" stroke-dasharray="2 2" />
+
+                <!-- Paths -->
+                <path class="map-path" d="M 40 20 Q 120 50, 90 110 T 20 180" stroke="rgba(30, 32, 34, 0.1)" stroke-width="1" stroke-dasharray="2 2" />
+                <path class="map-path" d="M 10 70 Q 70 85, 80 140" stroke="rgba(30, 32, 34, 0.1)" stroke-width="1" stroke-dasharray="2 2" />
+
+                <!-- Bridge -->
+                <path class="map-path" d="M 140 160 L 230 140" stroke="rgba(30,32,34,0.25)" stroke-width="2.5" />
+                <text fill="rgba(30,32,34,0.4)" font-size="5" font-family="monospace" x="148" y="150" transform="rotate(-12, 148, 150)">CORSO DANTE / P.TE ISABELLA</text>
+
+                <!-- Labels -->
+                <text fill="rgba(30,32,34,0.4)" font-size="8" font-family="sans-serif" font-weight="bold" x="15" y="40">PARCO DEL VALENTINO</text>
+                <text fill="rgba(30,32,34,0.3)" font-size="6" font-family="monospace" x="15" y="52">ZONA PRATO / FIUME</text>
+
+                <!-- Location Pin -->
+                <g id="location-pin" class="opacity-0">
+                  <circle cx="125" cy="100" r="16" fill="rgba(239, 68, 68, 0.12)"></circle>
+                  <circle cx="125" cy="100" r="3.5" fill="#ef4444" />
+                  <path d="M 125 88 L 125 112 M 113 100 L 137 100" stroke="#ef4444" stroke-width="0.75" />
+                  <circle cx="125" cy="100" r="7" stroke="#ef4444" stroke-width="0.5" stroke-dasharray="2 2" />
+                  <g transform="translate(125, 100)">
+                    <path d="M 0 0 L 12 -12 L 65 -12" stroke="#ef4444" stroke-width="0.75" fill="none" />
+                    <rect x="12" y="-23" width="76" height="11" rx="2" fill="#ef4444" />
+                    <text fill="white" font-size="6" font-weight="bold" x="16" y="-15" font-family="monospace">COMMESSA FESTA 📐</text>
+                  </g>
+                </g>
+              </svg>
+            </div>
+
+            <!-- Google Maps Button -->
+            <div id="planimetria-content">
+              <a href="https://maps.app.goo.gl/o1XYFKV1ZcSkx5si6?g_st=ic" target="_blank" rel="noopener noreferrer" class="w-full py-5 text-center liquid-glass hover:bg-white/80 active:scale-95 flex items-center justify-center gap-2 text-slate-800 text-[15px] font-extrabold tracking-tight pointer-events-auto">
+                <span>Apri il Navigatore (Google Maps)</span>
+                <svg class="w-5 h-5 text-[#f26419]" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                  <path stroke-linecap="round" stroke-linejoin="round" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                </svg>
+              </a>
+            </div>
+          </div>
+
+          <div class="section-footer">SCALA GRAFICA 1:5000 | DETTAGLIO TRACCIATO</div>
+        </section>
+
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 4 — FORNITURA MATERIALI (Food & Drink)
+             ═══════════════════════════════════════════════════ -->
+        <section id="materiali" class="section h-screen md:h-[800px] w-full flex flex-col justify-between p-7 relative overflow-hidden shrink-0">
+          <div class="section-header">
+            <div>TAV. 04 / COMPUTO METRICO</div>
+            <div class="text-right">17 LUGLIO 2026 · ORE 18:00</div>
+          </div>
+
+          <div class="flex-1 my-auto flex flex-col gap-4 relative py-2 justify-center">
+            <h2 class="text-4xl font-extrabold text-slate-950 uppercase leading-none tracking-tight">
+              Fornitura Materiali 🏗️
+            </h2>
+
+            <p class="text-[16px] font-normal text-slate-700 leading-relaxed max-w-sm mb-2">
+              Forniture certificate depositate in cantiere:
+            </p>
+
+            <div class="flex flex-col gap-4">
+              <!-- Tessera 1: Cemento Liquido -->
+              <div id="mat-card-1" class="liquid-glass p-5 relative flex items-center justify-between gap-4 overflow-hidden">
+                <div class="flex flex-col gap-1.5 flex-1">
+                  <div class="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">SPEC. 01 // LIQUIDI</div>
+                  <h3 class="text-[17px] font-extrabold text-slate-950 uppercase leading-none">🍸 Cemento Liquido</h3>
+                  <p class="text-[13px] font-normal text-slate-800 leading-relaxed mt-1 select-text">
+                    Gin in abbondanza, Spritz a fiumi e fiumi di alcol.
+                  </p>
+                </div>
+                <div class="w-14 h-14 flex items-center justify-center shrink-0 border border-slate-900/5 bg-slate-900/[0.01] rounded-xl">
+                  <svg viewBox="0 0 24 24" fill="none" class="w-8 h-8 text-slate-500 stroke-current" stroke-width="1.5">
+                    <path d="M3 3h18l-9 9-9-9zM12 12v9M8 21h8" stroke-linecap="round" stroke-linejoin="round" />
+                    <circle cx="12" cy="7" r="1" class="fill-current text-[#f26419] stroke-none" />
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Tessera 2: Diluenti -->
+              <div id="mat-card-2" class="liquid-glass p-5 relative flex items-center justify-between gap-4 overflow-hidden">
+                <div class="flex flex-col gap-1.5 flex-1">
+                  <div class="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">SPEC. 02 // DILUENTI</div>
+                  <h3 class="text-[17px] font-extrabold text-slate-950 uppercase leading-none">🥤 Diluenti</h3>
+                  <p class="text-[13px] font-normal text-slate-800 leading-relaxed mt-1 select-text">
+                    Bevande di ogni tipo e opzioni analcoliche.
+                  </p>
+                </div>
+                <div class="w-14 h-14 flex items-center justify-center shrink-0 border border-slate-900/5 bg-slate-900/[0.01] rounded-xl">
+                  <svg viewBox="0 0 24 24" fill="none" class="w-8 h-8 text-slate-500 stroke-current" stroke-width="1.5">
+                    <path d="M17 5H7a1 1 0 00-1 1v12a3 3 0 003 3h6a3 3 0 003-3V6a1 1 0 00-1-1zM9 1v4M15 1v4M6 9h12" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+              </div>
+
+              <!-- Tessera 3: Laterizi -->
+              <div id="mat-card-3" class="liquid-glass p-5 relative flex items-center justify-between gap-4 overflow-hidden">
+                <div class="flex flex-col gap-1.5 flex-1">
+                  <div class="text-[10px] font-mono text-slate-500 font-bold uppercase tracking-wider">SPEC. 03 // SOLIDI</div>
+                  <h3 class="text-[17px] font-extrabold text-slate-950 uppercase leading-none">🧱 Laterizi & Snack</h3>
+                  <p class="text-[13px] font-normal text-slate-800 leading-relaxed mt-1 select-text">
+                    Salatini e snack a volontà per fare le fondamenta nello stomaco.
+                  </p>
+                </div>
+                <div class="w-14 h-14 flex items-center justify-center shrink-0 border border-slate-900/5 bg-slate-900/[0.01] rounded-xl">
+                  <svg viewBox="0 0 24 24" fill="none" class="w-8 h-8 text-slate-500 stroke-current" stroke-width="1.5">
+                    <path d="M12 2L2 7l10 5 10-5-10-5zM2 17l10 5 10-5M2 12l10 5 10-5" stroke-linecap="round" stroke-linejoin="round" />
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section-footer">MATERIALI CONFORMI A NORMATIVA EN 1992</div>
+        </section>
+
+
+        <!-- ═══════════════════════════════════════════════════
+             SECTION 5 — DIREZIONE LAVORI (RSVP)
+             ═══════════════════════════════════════════════════ -->
+        <section id="rsvp" class="section h-screen md:h-[800px] w-full flex flex-col justify-between p-7 relative overflow-hidden shrink-0">
+          <!-- Particles container -->
+          <div id="particles-container" class="absolute inset-0 pointer-events-none z-50"></div>
+
+          <div class="section-header">
+            <div>TAV. 05 / COLLAUDO FINALE</div>
+            <div class="text-right">17 LUGLIO 2026 · ORE 18:00</div>
+          </div>
+
+          <div class="flex-1 my-auto flex flex-col gap-5 relative py-4 justify-center">
+            <h2 class="text-4xl font-extrabold text-slate-950 uppercase leading-none tracking-tight flex items-center gap-2">
+              Consegna Progetto 🫀
+            </h2>
+
+            <p class="text-[16px] font-normal text-slate-700 leading-relaxed select-text">
+              Il cantiere non richiede il deposito di ulteriori materiali estranei. Sarà sufficiente la vostra presenza e tanta allegria.
+            </p>
+
+            <!-- Signature Block -->
+            <div id="rsvp-card" class="liquid-glass p-6 border border-slate-900/10 flex flex-col gap-5 relative">
+              <div class="flex justify-between items-center text-[11px] font-mono text-slate-400 border-b border-slate-900/5 pb-2">
+                <span>REGISTRO STRUTTURALE</span>
+                <span>RIF: D_F_LAUREA</span>
+              </div>
+
+              <!-- Dotted signature area -->
+              <div class="h-28 w-full border-2 border-dashed border-slate-900/15 rounded-xl flex items-center justify-center relative bg-slate-900/[0.005]">
+                <div class="text-center font-mono text-[11px] font-bold text-slate-500 p-2 select-none">
+                  SPAZIO RISERVATO ALLA FIRMA DELLA DIREZIONE LAVORI
+                  <div class="text-[9px] font-medium text-slate-400 mt-1.5 uppercase">Il collaudo richiede la conferma</div>
+                </div>
+
+                <!-- Stamp (animated) -->
+                <div id="rsvp-stamp" class="absolute approved-stamp text-center text-[8px] leading-tight select-none rotate-[-12deg] z-20 pointer-events-none opacity-0">
+                  <div class="flex flex-col items-center justify-center">
+                    <span class="font-extrabold text-[9px] tracking-wide">APPROVATO</span>
+                    <span class="text-[7px] font-bold">DIREZIONE LAVORI</span>
+                    <span class="text-[6px] tracking-tight">DANIELE FALCHI</span>
+                    <span class="font-extrabold tracking-wider text-[6px]">17.07.2026</span>
+                  </div>
+                </div>
+              </div>
+
+
+            </div>
+          </div>
+
+          <div class="section-footer">FINE DEL REGISTRO DEI LAVORI | ARCH. DANIELE FALCHI</div>
+        </section>
+
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════════════════════════════════════════════════════════
+       GSAP SCROLLYTELLING ANIMATIONS
+       ═══════════════════════════════════════════════════════════ -->
+  <script>
+    document.addEventListener("DOMContentLoaded", () => {
+      const scroller = "#phone-container";
+
+      gsap.registerPlugin(ScrollTrigger);
+
+      // ────────────────────────────────────────
+      // SECTION 1: HERO — Parallax Fade Out
+      // ────────────────────────────────────────
+      const tlHero = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#hero",
+          start: "top top",
+          end: "bottom top",
+          scrub: 1,
+          scroller: scroller
+        }
+      });
+      tlHero.to("#hero-content", { y: -80, opacity: 0 }, 0);
+      tlHero.to("#hero-cartiglio", { y: -30, opacity: 0 }, 0);
+      tlHero.to("#hero-bg-compass", { rotation: 90, scale: 0.85, opacity: 0.2 }, 0);
+      tlHero.to("#hero-scroll-indicator", { opacity: 0, y: 15 }, 0);
+
+
+      // ────────────────────────────────────────
+      // SECTION 2: CRONOPROGRAMMA — Pinned Timeline
+      // ────────────────────────────────────────
+      const tlCrono = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#cronoprogramma",
+          start: "top top",
+          end: "+=160%",
+          pin: true,
+          pinSpacing: true,
+          scrub: 1,
+          scroller: scroller
+        }
+      });
+
+      // Timeline line grows
+      tlCrono.to("#timeline-progress-line", { height: "100%", ease: "none" }, 0);
+
+      // Staggered card reveals
+      tlCrono.fromTo("#cronocard-1",
+        { opacity: 0, x: 40, scale: 0.96 },
+        { opacity: 1, x: 0, scale: 1, duration: 0.3 },
+        0.05
+      );
+      tlCrono.fromTo("#cronocard-2",
+        { opacity: 0, x: 40, scale: 0.96 },
+        { opacity: 1, x: 0, scale: 1, duration: 0.3 },
+        0.4
+      );
+      tlCrono.fromTo("#cronocard-3",
+        { opacity: 0, x: 40, scale: 0.96 },
+        { opacity: 1, x: 0, scale: 1, duration: 0.3 },
+        0.75
+      );
+
+
+      // ────────────────────────────────────────
+      // SECTION 3: PLANIMETRIA — SVG Line Drawing + Pin Drop
+      // ────────────────────────────────────────
+      const tlPlani = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#planimetria",
+          start: "top top",
+          end: "+=150%",
+          pin: true,
+          pinSpacing: true,
+          scrub: 1,
+          scroller: scroller
+        }
+      });
+
+      // Draw map paths
+      const mapPaths = document.querySelectorAll("#planimetria-svg .map-path");
+      mapPaths.forEach(path => {
+        const length = path.getTotalLength();
+        gsap.set(path, { strokeDasharray: length, strokeDashoffset: length });
+        tlPlani.to(path, { strokeDashoffset: 0, duration: 0.4 }, 0.05);
+      });
+
+      // Draw River Po
+      const riverPo = document.querySelector(".map-river");
+      const riverPoLine = document.querySelector(".map-river-line");
+      if (riverPo && riverPoLine) {
+        const len1 = riverPo.getTotalLength();
+        const len2 = riverPoLine.getTotalLength();
+        gsap.set(riverPo, { strokeDasharray: len1, strokeDashoffset: len1 });
+        gsap.set(riverPoLine, { strokeDasharray: len2, strokeDashoffset: len2 });
+        tlPlani.to(riverPo, { strokeDashoffset: 0, duration: 0.5 }, 0.1);
+        tlPlani.to(riverPoLine, { strokeDashoffset: 0, duration: 0.5 }, 0.1);
+      }
+
+      // Draw boundary
+      const mapBoundary = document.querySelector(".map-boundary");
+      if (mapBoundary) {
+        const lenB = mapBoundary.getTotalLength();
+        gsap.set(mapBoundary, { strokeDasharray: lenB, strokeDashoffset: lenB });
+        tlPlani.to(mapBoundary, { strokeDashoffset: 0, duration: 0.4 }, 0.2);
+      }
+
+      // Pin drop with bounce
+      tlPlani.fromTo("#location-pin",
+        { opacity: 0, scale: 0.1, y: -80, transformOrigin: "125px 100px" },
+        { opacity: 1, scale: 1, y: 0, duration: 0.4, ease: "bounce.out" },
+        0.55
+      );
+
+      // Maps button fade in
+      tlPlani.fromTo("#planimetria-content",
+        { opacity: 0, y: 20 },
+        { opacity: 1, y: 0, duration: 0.3 },
+        0.75
+      );
+
+
+      // ────────────────────────────────────────
+      // SECTION 4: MATERIALI — Staggered Card Flip
+      // ────────────────────────────────────────
+      const tlMat = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#materiali",
+          start: "top top",
+          end: "+=160%",
+          pin: true,
+          pinSpacing: true,
+          scrub: 1,
+          scroller: scroller
+        }
+      });
+
+      tlMat.fromTo("#mat-card-1",
+        { opacity: 0, y: 60, rotationX: 15, transformOrigin: "bottom center" },
+        { opacity: 1, y: 0, rotationX: 0, duration: 0.3 },
+        0.1
+      );
+      tlMat.fromTo("#mat-card-2",
+        { opacity: 0, y: 60, rotationX: 15, transformOrigin: "bottom center" },
+        { opacity: 1, y: 0, rotationX: 0, duration: 0.3 },
+        0.4
+      );
+      tlMat.fromTo("#mat-card-3",
+        { opacity: 0, y: 60, rotationX: 15, transformOrigin: "bottom center" },
+        { opacity: 1, y: 0, rotationX: 0, duration: 0.3 },
+        0.7
+      );
+
+
+      // ────────────────────────────────────────
+      // SECTION 5: RSVP — Stamp Slam + Confetti
+      // ────────────────────────────────────────
+      const tlRSVP = gsap.timeline({
+        scrollTrigger: {
+          trigger: "#rsvp",
+          start: "top top",
+          end: "+=130%",
+          pin: true,
+          pinSpacing: true,
+          scrub: 1,
+          scroller: scroller
+        }
+      });
+
+      tlRSVP.fromTo("#rsvp-card",
+        { opacity: 0, y: 40 },
+        { opacity: 1, y: 0, duration: 0.4 },
+        0.1
+      );
+
+      // Stamp slam
+      tlRSVP.fromTo("#rsvp-stamp",
+        { opacity: 0, scale: 3.5, rotation: -50, transformOrigin: "center center" },
+        {
+          opacity: 0.9,
+          scale: 1,
+          rotation: -12,
+          duration: 0.35,
+          ease: "power2.in",
+          onComplete: () => {
+            triggerStampParticles();
+            gsap.fromTo("#rsvp-card",
+              { x: -5, y: 3 },
+              { x: 0, y: 0, duration: 0.15, ease: "rough", clearProps: "x,y" }
+            );
+          }
+        },
+        0.55
+      );
+
+
+
+
+      // ────────────────────────────────────────
+      // CONFETTI PARTICLES
+      // ────────────────────────────────────────
+      function triggerStampParticles() {
+        const container = document.getElementById("particles-container");
+        if (!container) return;
+
+        const colors = ["#d62246", "#f26419", "#38bdf8", "#4ade80", "#fbbf24"];
+        const stamp = document.getElementById("rsvp-stamp");
+        const rect = stamp.getBoundingClientRect();
+        const containerRect = container.getBoundingClientRect();
+
+        const originX = rect.left - containerRect.left + rect.width / 2;
+        const originY = rect.top - containerRect.top + rect.height / 2;
+
+        for (let i = 0; i < 40; i++) {
+          const particle = document.createElement("div");
+          particle.style.position = "absolute";
+          particle.style.width = `${gsap.utils.random(5, 10)}px`;
+          particle.style.height = `${gsap.utils.random(5, 10)}px`;
+          particle.style.backgroundColor = gsap.utils.random(colors);
+          particle.style.borderRadius = gsap.utils.random(0, 1) > 0.5 ? "50%" : "2px";
+          particle.style.left = `${originX}px`;
+          particle.style.top = `${originY}px`;
+          particle.style.pointerEvents = "none";
+          particle.style.zIndex = "100";
+          container.appendChild(particle);
+
+          const angle = gsap.utils.random(0, Math.PI * 2);
+          const velocity = gsap.utils.random(120, 240);
+          const xDest = Math.cos(angle) * velocity;
+          const yDest = Math.sin(angle) * velocity - gsap.utils.random(40, 100);
+
+          gsap.to(particle, {
+            x: xDest,
+            y: yDest,
+            rotation: gsap.utils.random(0, 360),
+            opacity: 0,
+            duration: gsap.utils.random(0.8, 1.4),
+            ease: "power2.out",
+            onComplete: () => {
+              particle.remove();
+            }
+          });
+        }
+      }
+    });
+  </script>
+</body>
+</html>
