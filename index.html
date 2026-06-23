@@ -675,7 +675,7 @@
         scrollTrigger: {
           trigger: "#cronoprogramma",
           start: "top top",
-          end: "+=160%",
+          end: "+=220%",
           pin: true,
           pinSpacing: true,
           scrub: scrubVal,
@@ -706,6 +706,9 @@
         0.75
       );
 
+      // Scroll buffer at the end of the page
+      tlCrono.to({}, { duration: 0.6 });
+
 
       // ────────────────────────────────────────
       // SECTION 3: PLANIMETRIA — SVG Line Drawing + Pin Drop
@@ -714,7 +717,7 @@
         scrollTrigger: {
           trigger: "#planimetria",
           start: "top top",
-          end: "+=150%",
+          end: "+=210%",
           pin: true,
           pinSpacing: true,
           scrub: scrubVal,
@@ -767,6 +770,9 @@
         0.75
       );
 
+      // Scroll buffer at the end of the page
+      tlPlani.to({}, { duration: 0.6 });
+
 
       // ────────────────────────────────────────
       // SECTION 4: MATERIALI — Staggered Card Flip
@@ -775,7 +781,7 @@
         scrollTrigger: {
           trigger: "#materiali",
           start: "top top",
-          end: "+=160%",
+          end: "+=220%",
           pin: true,
           pinSpacing: true,
           scrub: scrubVal,
@@ -801,6 +807,9 @@
         { opacity: 1, y: 0, rotationX: 0, duration: 0.3 },
         0.7
       );
+
+      // Scroll buffer at the end of the page
+      tlMat.to({}, { duration: 0.6 });
 
 
       // ────────────────────────────────────────
